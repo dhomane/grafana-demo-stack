@@ -17,7 +17,6 @@ This readme has the following sections:
   - [Explore logs to traces with LogQL v2](#explore-logs-to-traces-with-logql-v2)
   - [Disable TNS cluster](#disable-tns-cluster)
   - [Remove TNS cluster](#remove-tns-cluster)
-  - [Troubleshooting](#troubleshooting)
   - [Contributing guidelines](#contributing-guidelines)
     - [Modify TNS application:](#modify-tns-application)
     - [Update Grafana dashboards and kubernetes infrastructure:](#update-grafana-dashboards-and-kubernetes-infrastructure)
@@ -49,7 +48,13 @@ If you wish to only deploy the TNS app to an existing K8s cluster using the `app
 
 ### Docker
 
-Verify you have Docker installed. For download and installation instructions, click [here](https://docs.docker.com/install/).
+Make sure you have Docker installed and verify it is running with `docker ps`. No errors means it is running. For Docker download and installation instructions, click [here](https://docs.docker.com/install/).
+
+If using Linux and you see an error similar to `permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock` then make sure you are in the `docker` group. This will ensure that you are able to run Docker without using the `sudo` command.
+```sh
+$ sudo usermod -aG docker <username>
+```
+Logout and then login again for the changes to take effect.
 
 ### K3D
 
@@ -97,12 +102,6 @@ These instructions assume that you are using a local `k3d`. If you plan to use a
     $ export KUBECONFIG=$(k3d kubeconfig write tns)
     ```
 
-    If you see an error similar to `permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock`, then add yourself to the `docker` group. This will ensure that you are able to run Docker without using the `sudo` command.
-    ```sh
-    $ sudo usermod -aG docker <username>
-    ```
-    Logout and then login again for the changes to take effect.
-
 1. Install TNS demo application:
     ```sh
     $ ./install
@@ -127,8 +126,6 @@ Note: If you need to re-do this process to get everything running, you can run `
 
 If you already have a K8s cluster *and* cloud metrics, logs, and traces services available to you, use the `app-only` option to deploy _only_ the instrumented TNS app to a Kubernetes cluster.
 
-A tutorial using this method will soon be available in Grafana Cloud's docs.
-
 1. Get Kubernetes context
     ```sh
     $ kubectl config get-contexts
@@ -148,6 +145,36 @@ A tutorial using this method will soon be available in Grafana Cloud's docs.
     $ kubectl get pods -n tns-cloud
     ```
     If all the pods are listed as either `running`, your app is ready for use.
+
+## Install TNS demo app connected to Grafana Cloud (`grafana-cloud` option)
+
+Note: this requires an existing K8S cluster.
+
+1. Get Kubernetes context
+    ```sh
+    $ kubectl config get-contexts
+    ```
+    Note down the context you'd like to use to deploy the app.
+
+1. Deploy the app
+    ```sh
+    $ ./install CONTEXT_YOU_NOTED grafana-cloud
+    ```
+
+1. This will ask you to enter your organization name, an API Key as well as the desired stack. You can get this information from your account page in the Grafana Cloud console.
+
+1. Confirm `yes` when prompted about applying changes to your cluster
+
+1. Verify the status of your cluster by running this command.
+
+    ```sh
+    $ kubectl get pods -n tns-cloud
+    ```
+	If all the pods are listed as either `running`, your app is ready for use.
+
+
+After a few minutes, you will see metrics arriving in your Grafana instance. At this point, you can also enable the [Kubernetes Integration](https://grafana.com/docs/grafana-cloud/kubernetes-monitoring/) - the agent is already configured for you!
+
 
 ## Explore metrics to logs to traces
 
@@ -200,12 +227,6 @@ To remove your cluster, run this command:
 $ k3d cluster delete tns
 $ rm -rf tanka
 ```
-
-## Troubleshooting
-
-**Issue:** 404 error when trying to load Tempo traces.
-
-**Solution:** Your Jaeger agent is likely not running correctly. Check that all pods were successfully scheduled.
 
 ## Contributing guidelines
 
