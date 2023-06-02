@@ -16,7 +16,7 @@ version: '3.4'
 services:
 
   db:
-    image: grafana/tns-db:842bd3b
+    image: grafana/tns-db:latest
     command:
       - '-log.level=debug'
     ports:
@@ -31,7 +31,7 @@ services:
     logging: *default-logging
 
   app:
-    image: grafana/tns-app:842bd3b
+    image: grafana/tns-app:latest
     command:
       - '-log.level=debug'
       - 'http://db'
@@ -49,7 +49,7 @@ services:
     logging: *default-logging
 
   loadgen:
-    image: grafana/tns-loadgen:842bd3b
+    image: grafana/tns-loadgen:latest
     command:
       - '-log.level=debug'
       - 'http://app'
@@ -67,7 +67,7 @@ services:
     logging: *default-logging
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana-oss:10.0.0-preview
     volumes:
       - ./datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
@@ -81,7 +81,7 @@ services:
     logging: *default-logging
 
   prometheus:
-    image: prom/prometheus:v2.30.3
+    image: prom/prometheus:latest
     user: root
     command:
       - --config.file=/etc/prometheus/prometheus.yml
@@ -103,7 +103,7 @@ services:
     logging: *default-logging
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.38.7
+    image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
     ports:
       - 8080:8080
@@ -117,7 +117,7 @@ services:
     logging: *default-logging
 
   node_exporter:
-    image: prom/node-exporter:v1.1.0
+    image: prom/node-exporter:latest
     container_name: node_exporter
     volumes:
       - /proc:/host/proc:ro
@@ -133,7 +133,7 @@ services:
     logging: *default-logging
 
   loki:
-    image: grafana/loki:2.3.0
+    image: grafana/loki:latest
     command:
       - -config.file=/etc/loki/local-config.yaml
       - -table-manager.retention-period=1d
@@ -145,7 +145,7 @@ services:
     logging: *default-logging
 
   tempo:
-    image: grafana/tempo:1.1.0
+    image: grafana/tempo:latest
     command:
       - --target=all
       - --storage.trace.backend=local
